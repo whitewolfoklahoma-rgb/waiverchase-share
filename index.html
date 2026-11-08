@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WaiverChase — Lien-Waiver Collection (Demo)</title>
+<style>
+  :root{
+    --navy:#12263a; --navy2:#1b3a55; --ink:#1c2733; --mut:#5b6b7a; --line:#d9e1e8;
+    --bg:#eef2f5; --card:#ffffff; --accent:#0f7a4d; --accent2:#0b5cad;
+    --red:#c0392b; --redbg:#fdecea; --amber:#a86e00; --amberbg:#fdf3e0;
+    --green:#0f7a4d; --greenbg:#e7f5ee; --greybg:#eef1f4;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; background:var(--bg); color:var(--ink); font-size:14px;}
+  header{background:var(--navy); color:#fff; padding:14px 28px; display:flex; align-items:center; gap:18px; flex-wrap:wrap;}
+  header .logo{font-size:20px; font-weight:700; letter-spacing:.3px;}
+  header .logo span{color:#7fd1a8;}
+  header .sub{color:#b9c9d6; font-size:12.5px;}
+  header .demo-badge{margin-left:auto; background:#f5b301; color:#231a00; font-weight:700; font-size:12px; padding:5px 12px; border-radius:20px; text-transform:uppercase; letter-spacing:.6px;}
+  .companybar{background:var(--navy2); color:#dbe7f1; padding:8px 28px; font-size:13px; display:flex; gap:24px; flex-wrap:wrap;}
+  .companybar b{color:#fff;}
+  nav{display:flex; gap:4px; background:#fff; border-bottom:1px solid var(--line); padding:0 20px; position:sticky; top:0; z-index:5; flex-wrap:wrap;}
+  nav button{background:none; border:none; border-bottom:3px solid transparent; padding:13px 14px; font-size:14px; font-weight:600; color:var(--mut); cursor:pointer; min-height:48px;}
+  nav button:hover{color:var(--ink);}
+  nav button.active{color:var(--navy); border-bottom-color:var(--accent);}
+  main{max-width:1180px; margin:0 auto; padding:24px 20px 40px;}
+  section.panel{display:none;}
+  section.panel.active{display:block;}
+  h2{font-size:18px; margin-bottom:4px; color:var(--navy);}
+  .pdesc{color:var(--mut); margin-bottom:18px; font-size:13px;}
+  .cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:16px; margin-bottom:22px;}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:18px 20px;}
+  .card .lbl{font-size:12px; text-transform:uppercase; letter-spacing:.7px; color:var(--mut); font-weight:700;}
+  .card .big{font-size:28px; font-weight:800; margin:6px 0 2px; color:var(--navy);}
+  .card .note{font-size:12.5px; color:var(--mut);}
+  .card.risk .big{color:var(--red);}
+  .card.warn .big{color:var(--amber);}
+  .card.good .big{color:var(--green);}
+  .riskbanner{background:var(--redbg); border:1px solid #f0c6c0; color:#7c2318; border-radius:10px; padding:14px 18px; margin-bottom:22px; font-size:13.5px;}
+  .riskbanner b{color:var(--red);}
+  .statstrip{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px 20px; margin-bottom:22px;}
+  .statstrip h3{font-size:14px; color:var(--navy); margin-bottom:8px;}
+  .statstrip li{margin-left:18px; margin-bottom:4px; color:var(--ink); font-size:13.5px;}
+  table{width:100%; border-collapse:collapse; background:var(--card); border:1px solid var(--line); border-radius:10px; overflow:hidden;}
+  th{background:var(--greybg); text-align:left; font-size:12px; text-transform:uppercase; letter-spacing:.5px; color:var(--mut); padding:10px 12px;}
+  td{padding:10px 12px; border-top:1px solid var(--line); vertical-align:top; font-size:13.5px;}
+  .pill{display:inline-block; padding:2px 10px; border-radius:12px; font-size:12px; font-weight:700; white-space:nowrap;}
+  .pill.received{background:var(--greenbg); color:var(--green);}
+  .pill.chased{background:var(--redbg); color:var(--red);}
+  .pill.sent{background:var(--amberbg); color:var(--amber);}
+  .pill.generated{background:#eceff1; color:#37474f;}
+  .pill.matched{background:var(--greenbg); color:var(--green);}
+  .pill.mismatch{background:var(--redbg); color:var(--red);}
+  .pill.final{background:#f3e8fd; color:#6a1b9a;}
+  .btn{background:var(--accent); color:#fff; border:none; border-radius:8px; padding:10px 16px; font-size:13.5px; font-weight:700; cursor:pointer; min-height:44px;}
+  .btn:hover{background:#0b6340;}
+  .btn:disabled{background:#b9c9d6; cursor:not-allowed;}
+  .btn.secondary{background:#fff; color:var(--navy); border:1px solid var(--line);}
+  .btn.secondary:hover{background:var(--greybg);}
+  .btn.small{padding:6px 10px; min-height:36px; font-size:12.5px; margin:2px 2px 2px 0;}
+  .btn.blue{background:var(--accent2);}
+  .btn.blue:hover{background:#094f86;}
+  .btn.danger{background:#fff; color:var(--red); border:1px solid #f0c6c0;}
+  .btn.danger:hover{background:var(--redbg);}
+  .toolbar{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:14px;}
+  .toolbar .spacer{flex:1;}
+  input[type=text], input[type=number], input[type=email], input[type=date], select, textarea{width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:8px; font-size:14px; font-family:inherit; background:#fff;}
+  textarea{resize:vertical;}
+  label.flabel{display:block; font-size:12.5px; font-weight:700; color:var(--mut); margin:0 0 6px;}
+  .field{margin-bottom:14px;}
+  .fieldrow{display:flex; gap:8px; align-items:flex-start;}
+  .fieldrow .grow{flex:1;}
+  .micbtn{flex:0 0 auto; width:48px; height:48px; border-radius:8px; border:1px solid var(--line); background:#fff; font-size:20px; cursor:pointer;}
+  .micbtn:hover{background:var(--greybg);}
+  .formcard{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:20px; max-width:820px; margin-bottom:22px;}
+  .formcard h3{font-size:15px; color:var(--navy); margin-bottom:12px;}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:0 16px;}
+  .err{background:var(--redbg); color:#7c2318; border:1px solid #f0c6c0; border-radius:8px; padding:10px 14px; margin-bottom:12px; display:none; font-size:13.5px;}
+  .okmsg{background:var(--greenbg); color:#0b5340; border:1px solid #bfe3cf; border-radius:8px; padding:10px 14px; margin-bottom:12px; display:none; font-size:13.5px;}
+  .chasecard{background:var(--card); border:1px solid var(--line); border-left:5px solid var(--red); border-radius:10px; padding:16px 20px; margin-bottom:16px;}
+  .chasecard.amber{border-left-color:var(--amber);}
+  .chasecard.grey{border-left-color:#607d8b;}
+  .chasecard h3{font-size:15px; color:var(--navy); margin-bottom:4px;}
+  .chasecard .meta{color:var(--mut); font-size:12.5px; margin-bottom:10px;}
+  .magiclink{background:var(--greybg); border:1px dashed var(--mut); border-radius:8px; padding:10px 12px; font-size:12.5px; word-break:break-all; margin:10px 0;}
+  .jobcard{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:18px 20px; margin-bottom:16px;}
+  .jobcard h3{font-size:15.5px; color:var(--navy);}
+  .jobcard .meta{color:var(--mut); font-size:12.5px; margin-bottom:10px;}
+  .bar{height:14px; background:var(--greybg); border-radius:7px; overflow:hidden; margin:8px 0;}
+  .bar > div{height:100%; background:var(--accent);}
+  .bar > div.mid{background:#d99a00;}
+  .bar > div.low{background:var(--red);}
+  .doccard{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:18px 20px; margin-bottom:16px;}
+  .doccard h3{font-size:15px; color:var(--navy); margin-bottom:6px;}
+  .doccard .formname{font-size:12.5px; color:var(--mut); margin-bottom:10px;}
+  .doccard table{border:none;}
+  .doccard td{border-top:none; padding:4px 8px 4px 0;}
+  .sigline{border-top:1px solid var(--ink); margin-top:22px; padding-top:4px; font-size:12px; color:var(--mut); width:60%;}
+  .pricegrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:16px; margin-bottom:22px;}
+  .pricecard{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:22px;}
+  .pricecard .price{font-size:34px; font-weight:800; color:var(--navy); margin:8px 0;}
+  .pricecard li{margin-left:18px; margin-bottom:5px; font-size:13.5px;}
+  .checkrow{display:flex; gap:10px; align-items:flex-start; margin:14px 0;}
+  .checkrow input{width:20px; height:20px; margin-top:2px; flex:0 0 auto;}
+  details{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px 18px; margin-bottom:10px;}
+  details summary{font-weight:700; color:var(--navy); cursor:pointer; font-size:14.5px;}
+  details p, details li{margin-top:8px; color:var(--ink); font-size:13.5px;}
+  details li{margin-left:18px;}
+  footer{border-top:1px solid var(--line); padding:18px 28px; color:var(--mut); font-size:12.5px; max-width:1180px; margin:0 auto;}
+  #toast{position:fixed; bottom:22px; left:50%; transform:translateX(-50%); background:var(--navy); color:#fff; padding:12px 20px; border-radius:10px; font-size:14px; display:none; z-index:50; max-width:90vw; text-align:center;}
+  .empty{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:28px; text-align:center; color:var(--mut);}
+  #printArea{display:none;}
+  @media (max-width:640px){
+    .grid2{grid-template-columns:1fr;}
+    td,th{padding:8px;}
+    .tablewrap{overflow-x:auto;}
+  }
+  @media print{
+    header, nav, main, footer, #toast{display:none !important;}
+    #printArea{display:block; font-size:12px;}
+    #printArea table{border:1px solid #999; width:100%; border-collapse:collapse;}
+    #printArea th, #printArea td{border:1px solid #ccc; padding:6px 8px;}
+    #printArea .docpage{page-break-after:always; margin-bottom:24px;}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <div class="logo">Waiver<span>Chase</span></div>
+    <div class="sub">Lien-waiver collection for small GCs — every waiver generated, sent, chased, and matched to its pay app.</div>
+  </div>
+  <div class="demo-badge">Demo — fictional sample data</div>
+</header>
+<div class="companybar">
+  <div>Company: <b>Redbud Commercial Builders</b> (fictional demo company)</div>
+  <div>Active jobs: <b id="barJobCount">3</b></div>
+  <div>Today: <b id="barToday"></b></div>
+</div>
+<nav id="mainNav">
+  <button data-view="dashboard" class="active">Dashboard</button>
+  <button data-view="jobs">Jobs</button>
+  <button data-view="payapps">Pay Apps</button>
+  <button data-view="packet">Waiver Packet</button>
+  <button data-view="chase">Chase Queue</button>
+  <button data-view="received">Received Log</button>
+  <button data-view="closeout">Closeout</button>
+  <button data-view="forms">State Forms</button>
+  <button data-view="pricing">Pricing &amp; Pilot</button>
+  <button data-view="help">Help</button>
+</nav>
+<main>
+<!-- ============ DASHBOARD ============ -->
+<section class="panel active" id="view-dashboard">
+  <h2>Which waivers are in, which are still out — right now</h2>
+  <p class="pdesc">Every lien waiver your subs owe you, matched to the pay app it belongs to. A missing waiver means you can pay twice for the same work — this screen exists so that never happens quietly.</p>
+  <div class="riskbanner" id="riskBanner"></div>
+  <div class="cards" id="statCards">
+    <div class="card good"><div class="lbl">Waivers in</div><div class="big" id="statPct">–</div><div class="note" id="statInNote">of waivers received</div></div>
+    <div class="card good"><div class="lbl">Covered by waivers</div><div class="big" id="statCovered">–</div><div class="note">work you can't be charged for twice</div></div>
+    <div class="card risk"><div class="lbl">Still exposed</div><div class="big" id="statExposed">–</div><div class="note">paid work with no waiver in hand</div></div>
+    <div class="card warn"><div class="lbl">Waivers outstanding</div><div class="big" id="statOut">–</div><div class="note">generated, sent, or being chased</div></div>
+    <div class="card risk"><div class="lbl">Finals missing</div><div class="big" id="statFinals">–</div><div class="note">jobs that can't fully close out</div></div>
+  </div>
+  <div class="statstrip">
+    <h3>⛔ Don't release payment yet</h3>
+    <ul id="holdList"></ul>
+  </div>
+  <div class="statstrip">
+    <h3>✅ Clear to pay</h3>
+    <ul id="clearList"></ul>
+  </div>
+  <div class="toolbar">
+    <button class="btn" id="dashJobsBtn">See the jobs</button>
+    <button class="btn blue" id="dashChaseBtn">Work the chase queue</button>
+    <button class="btn secondary" id="dashPayBtn">Enter a pay app</button>
+    <span class="spacer"></span>
+    <button class="btn secondary" id="exportCsvBtn">Export waiver log (CSV)</button>
+    <button class="btn secondary" id="printLogBtn">Print waiver log</button>
+  </div>
+  <p class="pdesc">The waiver log is the file your owner, lender, or auditor asks for at closeout: every waiver, its pay app, its amount, and its status — dated today.</p>
+</section>
+
+<!-- ============ JOBS ============ -->
+<section class="panel" id="view-jobs">
+  <h2>Jobs — waiver completeness at a glance</h2>
+  <p class="pdesc">Every active job with the share of its waivers actually in hand. The bar only moves when a signed waiver lands — not when somebody says it's in the mail.</p>
+  <div class="toolbar">
+    <div style="flex:1; min-width:200px;">
+      <div class="fieldrow"><div class="grow"><input type="text" id="searchJobs" placeholder="Search jobs or subs…"></div><button class="micbtn" data-mic="searchJobs" title="Voice entry" aria-label="Voice search">🎤</button></div>
+    </div>
+  </div>
+  <div id="jobWrap"></div>
+  <div class="empty" id="jobEmpty" style="display:none;">No jobs match. Clear the search, or add the job below.</div>
+
+  <div class="formcard" style="margin-top:22px;">
+    <h3>Add a job</h3>
+    <div class="err" id="ajErr"></div>
+    <div class="grid2">
+      <div class="field"><label class="flabel" for="ajName">Job name *</label><div class="fieldrow"><div class="grow"><input type="text" id="ajName" placeholder="e.g. Grand Lake Dental Clinic"></div><button class="micbtn" data-mic="ajName" title="Voice entry" aria-label="Voice entry for job name">🎤</button></div></div>
+      <div class="field"><label class="flabel" for="ajLoc">Location</label><div class="fieldrow"><div class="grow"><input type="text" id="ajLoc" placeholder="e.g. Grove, OK"></div><button class="micbtn" data-mic="ajLoc" title="Voice entry" aria-label="Voice entry for location">🎤</button></div></div>
+      <div class="field"><label class="flabel" for="ajState">State (decides the waiver form)</label>
+        <select id="ajState"><option value="OK">Oklahoma</option><option value="TX">Texas</option><option value="CA">California</option></select></div>
+      <div class="field"><label class="flabel" for="ajContract">Contract amount ($)</label><input type="number" id="ajContract" min="0" step="1000" placeholder="750000"></div>
+    </div>
+    <button class="btn" id="ajAddBtn">Add job</button>
+  </div>
+
+  <div class="formcard">
+    <h3>Add a subcontractor</h3>
+    <div class="err" id="asErr"></div>
+    <div class="grid2">
+      <div class="field"><label class="flabel" for="asName">Company name *</label><div class="fieldrow"><div class="grow"><input type="text" id="asName" placeholder="e.g. Sooner Septic Service"></div><button class="micbtn" data-mic="asName" title="Voice entry" aria-label="Voice entry for company name">🎤</button></div></div>
+      <div class="field"><label class="flabel" for="asTrade">Trade</label>
+        <select id="asTrade"><option>Plumbing</option><option>Electrical</option><option>Roofing</option><option>HVAC</option><option>Concrete</option><option>Framing</option><option>Painting</option><option>Drywall</option><option>Excavation</option><option>Flooring</option><option>Glass &amp; Glazing</option><option>Masonry</option><option>Landscaping</option><option>Steel Erection</option><option>Other</option></select></div>
+      <div class="field"><label class="flabel" for="asContact">Contact name</label><div class="fieldrow"><div class="grow"><input type="text" id="asContact" placeholder="e.g. Dana Ruiz"></div><button class="micbtn" data-mic="asContact" title="Voice entry" aria-label="Voice entry for contact name">🎤</button></div></div>
+      <div class="field"><label class="flabel" for="asEmail">Contact email</label><input type="email" id="asEmail" placeholder="office@company.com"></div>
+      <div class="field"><label class="flabel" for="asJob">Works on job</label><select id="asJob"></select></div>
+    </div>
+    <button class="btn" id="asAddBtn">Add subcontractor</button>
+  </div>
+</section>
+
+<!-- ============ PAY APPS ============ -->
+<section class="panel" id="view-payapps">
+  <h2>Enter a pay app — once</h2>
+  <p class="pdesc">Pick the job, type each sub's amount for this period one time. WaiverChase generates the correct waiver for every sub on the job from that single entry — no re-typing amounts into Word templates ever again.</p>
+  <div class="formcard">
+    <div class="err" id="paErr"></div>
+    <div class="okmsg" id="paOk"></div>
+    <div class="grid2">
+      <div class="field"><label class="flabel" for="paJob">Job *</label><select id="paJob"></select></div>
+      <div class="field"><label class="flabel" for="paNumber">Pay app number *</label><input type="number" id="paNumber" min="1" step="1" placeholder="e.g. 5"></div>
+      <div class="field"><label class="flabel" for="paPeriod">Period label *</label><div class="fieldrow"><div class="grow"><input type="text" id="paPeriod" placeholder="e.g. December 2026"></div><button class="micbtn" data-mic="paPeriod" title="Voice entry" aria-label="Voice entry for period">🎤</button></div></div>
+      <div class="field"><label class="flabel" for="paThrough">Waivers cover work through</label><input type="date" id="paThrough"></div>
+    </div>
+    <div class="field"><label class="flabel" for="paNotes">Notes (optional)</label><div class="fieldrow"><div class="grow"><input type="text" id="paNotes" placeholder="e.g. Owner asked for finals from roofing"></div><button class="micbtn" data-mic="paNotes" title="Voice entry" aria-label="Voice entry for notes">🎤</button></div></div>
+    <h3 style="margin-top:6px;">Amounts per sub this period ($)</h3>
+    <div id="paAmounts"></div>
+    <button class="btn" id="paSaveBtn">Save pay app &amp; generate waivers</button>
+  </div>
+  <h2 style="margin-top:8px;">Pay apps on file</h2>
+  <p class="pdesc">Every pay app entered, with how much of it is covered by waivers in hand.</p>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Pay app</th><th>Job</th><th>Period</th><th>Amount</th><th>Covered</th><th>Waivers</th></tr></thead>
+    <tbody id="payappBody"></tbody>
+  </table>
+  </div>
+  <div class="empty" id="payappEmpty" style="display:none;">No pay apps yet. Enter the first one above.</div>
+</section>
+
+<!-- ============ WAIVER PACKET ============ -->
+<section class="panel" id="view-packet">
+  <h2>Waiver packet — pre-filled, ready to send</h2>
+  <p class="pdesc">The correct form for the job's state, filled from the pay app you already entered: claimant, job, amount, and through-date. Subs sign from a no-login link — no account, no portal, no password. Finals are flagged where an owner or lender may require notarization.</p>
+  <div class="toolbar">
+    <div style="min-width:260px; flex:0 1 340px;"><label class="flabel" for="pkPayapp">Pay app</label><select id="pkPayapp"></select></div>
+    <button class="btn" id="pkSendAllBtn">Mark packet sent</button>
+    <button class="btn secondary" id="pkPrintBtn">Print packet</button>
+  </div>
+  <div id="pkWrap"></div>
+  <div class="empty" id="pkEmpty" style="display:none;">No waivers for this pay app yet.</div>
+</section>
+
+<!-- ============ CHASE QUEUE ============ -->
+<section class="panel" id="view-chase">
+  <h2>Chase queue</h2>
+  <p class="pdesc">Every waiver still out, worst first — final waivers and the biggest dollars at the top — with the email already written and a no-login sign-and-return link inside it. The ladder runs at 3, 7, and 14 days. In this demo nothing is sent: copy the email into your own mail, mark the chase, or mark the waiver received when the signed copy lands.</p>
+  <div class="statstrip"><h3 id="chaseCount">–</h3><p style="font-size:13px; color:var(--mut);">Each card names the sub, the job, the exact form, and the dollar amount the waiver covers.</p></div>
+  <div id="chaseWrap"></div>
+  <div class="empty" id="chaseEmpty" style="display:none;">🎉 Every waiver is in. The chase queue is empty.</div>
+</section>
+
+<!-- ============ RECEIVED LOG ============ -->
+<section class="panel" id="view-received">
+  <h2>Received log — auto-matched to the pay app</h2>
+  <p class="pdesc">Signed waivers that have landed, each checked against its pay app automatically: right sub, right form, right amount, right through-date. A waiver that arrives for the wrong amount is flagged, not filed — it doesn't cover the payment.</p>
+  <div class="toolbar">
+    <div style="flex:1; min-width:200px;">
+      <div class="fieldrow"><div class="grow"><input type="text" id="recSearch" placeholder="Search the log…"></div><button class="micbtn" data-mic="recSearch" title="Voice entry" aria-label="Voice search">🎤</button></div>
+    </div>
+  </div>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Received</th><th>Sub</th><th>Job / Pay app</th><th>Waiver</th><th>Amount</th><th>Match</th></tr></thead>
+    <tbody id="recBody"></tbody>
+  </table>
+  </div>
+  <div class="empty" id="recEmpty" style="display:none;">No received waivers match. Clear the search, or log one below.</div>
+
+  <div class="formcard" style="margin-top:22px;">
+    <h3>Log a waiver that just arrived</h3>
+    <div class="err" id="lrErr"></div>
+    <div class="okmsg" id="lrOk"></div>
+    <div class="grid2">
+      <div class="field"><label class="flabel" for="lrWaiver">Waiver it answers *</label><select id="lrWaiver"></select></div>
+      <div class="field"><label class="flabel" for="lrAmount">Amount on the signed waiver ($)</label><input type="number" id="lrAmount" min="0" step="1"></div>
+      <div class="field"><label class="flabel" for="lrDate">Date received</label><input type="date" id="lrDate"></div>
+    </div>
+    <button class="btn" id="lrLogBtn">Log received waiver</button>
+    <p style="font-size:12.5px; color:var(--mut); margin-top:10px;">If the amount on the signed waiver doesn't match the pay app, the log flags it and the waiver stays in the chase queue — a wrong-amount waiver doesn't cover the payment.</p>
+  </div>
+</section>
+
+<!-- ============ CLOSEOUT ============ -->
+<section class="panel" id="view-closeout">
+  <h2>Closeout — finals outstanding per job</h2>
+  <p class="pdesc">The end-of-job list: which final waivers are still missing before you release the last check. Don't release check #last until these land.</p>
+  <div id="closeWrap"></div>
+</section>
+
+<!-- ============ STATE FORMS ============ -->
+<section class="panel" id="view-forms">
+  <h2>State-form library</h2>
+  <p class="pdesc">Twelve states prescribe statutory waiver forms; the rest use custom forms. This demo ships the three states Redbud works in. WaiverChase picks the form from the job's state automatically — the packet always carries the form name so anyone can check it.</p>
+  <details open><summary>California — statutory forms (Civil Code §§ 8100–8150)</summary>
+    <ul>
+      <li><b>Conditional Waiver and Release on Progress Payment</b> — Civil Code §8132</li>
+      <li><b>Unconditional Waiver and Release on Progress Payment</b> — Civil Code §8134</li>
+      <li><b>Conditional Waiver and Release on Final Payment</b> — Civil Code §8136</li>
+      <li><b>Unconditional Waiver and Release on Final Payment</b> — Civil Code §8138</li>
+    </ul>
+    <p>Use the statutory wording exactly; a non-statutory form risks being unenforceable in California. Notarization is not generally required for California waivers.</p>
+  </details>
+  <details><summary>Texas — statutory forms (Property Code Chapter 53, Subchapter L)</summary>
+    <ul>
+      <li><b>Conditional Waiver and Release on Progress Payment</b> — statutory form, Tex. Prop. Code §53.283</li>
+      <li><b>Unconditional Waiver and Release on Progress Payment</b> — statutory form, Tex. Prop. Code §53.284</li>
+      <li><b>Conditional Waiver and Release on Final Payment</b> — statutory form under Subchapter L</li>
+      <li><b>Unconditional Waiver and Release on Final Payment</b> — statutory form under Subchapter L</li>
+    </ul>
+    <p>Texas requires the statutory forms for waivers to be effective. Texas waivers generally must be notarized if they are to be recorded or relied on by lenders — finals are flagged in the packet.</p>
+  </details>
+  <details><summary>Oklahoma — no statutory form</summary>
+    <ul>
+      <li><b>Conditional Waiver and Release on Progress Payment</b> — custom form (Oklahoma prescribes no statutory waiver form; lien law is Title 42)</li>
+      <li><b>Unconditional Waiver and Release on Progress Payment</b> — custom form</li>
+      <li><b>Conditional Waiver and Release on Final Payment</b> — custom form</li>
+      <li><b>Unconditional Waiver and Release on Final Payment</b> — custom form</li>
+    </ul>
+    <p>Because Oklahoma has no statutory form, the wording follows the widely used AIA-style custom forms. Have your attorney review your template once — then WaiverChase fills it forever.</p>
+  </details>
+  <p class="pdesc" style="margin-top:14px;">WaiverChase organizes and fills waiver forms. It is not legal advice and does not interpret lien law — your contracts and your attorney decide which waivers each job requires.</p>
+</section>
+
+<!-- ============ PRICING & PILOT ============ -->
+<section class="panel" id="view-pricing">
+  <h2>Pricing</h2>
+  <p class="pdesc">One flat price. No per-project fees, no per-seat traps, no ERP you have to buy first — the payment platforms that bundle waivers start at $416/mo and won't publish a price until you've sat through a negotiation.</p>
+  <div class="pricegrid">
+    <div class="pricecard">
+      <div class="lbl" style="font-size:12px; text-transform:uppercase; letter-spacing:.7px; color:var(--mut); font-weight:700;">WaiverChase</div>
+      <div class="price">$79<span style="font-size:16px; color:var(--mut);">/mo flat</span></div>
+      <ul>
+        <li><b>Unlimited</b> jobs, subs, and pay apps</li>
+        <li>Enter the pay app once — the correct <b>state-form waiver</b> is generated for every sub</li>
+        <li>No-login sign-and-return links — subs never create an account</li>
+        <li>Automatic chase ladder at 3 / 7 / 14 days until the waiver lands</li>
+        <li>Received log auto-matched to the pay app; closeout packet in one print</li>
+        <li>Your data lives on your device in this edition; export anytime</li>
+      </ul>
+    </div>
+    <div class="pricecard">
+      <div class="lbl" style="font-size:12px; text-transform:uppercase; letter-spacing:.7px; color:var(--mut); font-weight:700;">Start here — First-Project Setup pilot</div>
+      <div class="price">$199<span style="font-size:16px; color:var(--mut);"> one-time</span></div>
+      <ul>
+        <li>Pick one live project — we set up its jobs, subs, and waiver forms</li>
+        <li>We run <b>one full pay-app cycle's</b> waivers for you: generated, sent, chased</li>
+        <li>You get back the received log and the closeout checklist for that cycle</li>
+        <li>If we can't run the cycle, the $199 comes back — no half-done setups</li>
+        <li>The pilot credit applies in full if you continue at $79/mo</li>
+      </ul>
+    </div>
+  </div>
+  <div class="formcard">
+    <h3>Request the $199 First-Project Setup</h3>
+    <div class="grid2">
+      <div class="field"><label class="flabel" for="pilotName">Your name</label><div class="fieldrow"><div class="grow"><input type="text" id="pilotName" placeholder="e.g. Jamie Cole"></div><button class="micbtn" data-mic="pilotName" title="Voice entry" aria-label="Voice entry for your name">🎤</button></div></div>
+      <div class="field"><label class="flabel" for="pilotCompany">Company</label><div class="fieldrow"><div class="grow"><input type="text" id="pilotCompany" placeholder="e.g. Cole Construction LLC"></div><button class="micbtn" data-mic="pilotCompany" title="Voice entry" aria-label="Voice entry for company">🎤</button></div></div>
+      <div class="field"><label class="flabel" for="pilotEmail">Email</label><input type="email" id="pilotEmail" placeholder="you@company.com"></div>
+      <div class="field"><label class="flabel" for="pilotJobs">Roughly how many active jobs?</label><input type="number" id="pilotJobs" min="0" placeholder="e.g. 8"></div>
+    </div>
+    <div class="checkrow"><input type="checkbox" id="pilotTerms"><label for="pilotTerms">I understand this is a request for the $199 First-Project Setup pilot: WaiverChase prepares and chases one pay-app cycle's waivers from the project details I provide, I stay the account holder, and nothing is billed until we confirm the pilot by email.</label></div>
+    <button class="btn" id="pilotSubmit" disabled>Send pilot request</button>
+    <p style="font-size:12.5px; color:var(--mut); margin-top:10px;">Sending opens your own mail app, addressed to our back office. Nothing is charged and nothing is sent until you press send there.</p>
+  </div>
+</section>
+
+<!-- ============ HELP ============ -->
+<section class="panel" id="view-help">
+  <h2>Help</h2>
+  <p class="pdesc">The short version of everything WaiverChase does.</p>
+  <details><summary>How do I enter a pay app?</summary><p>On the <b>Pay Apps</b> tab, pick the job, give the pay-app number and period, and type each sub's amount for the period. Save once — WaiverChase generates a waiver for every sub with an amount, on the correct form for the job's state.</p></details>
+  <details><summary>How do subs sign and return a waiver?</summary><p>Open the <b>Waiver Packet</b> for the pay app and mark it sent — each sub's waiver carries a <b>no-login sign-and-return link</b>, so the sub opens it, signs, and it comes back. Nobody creates an account. The <b>Chase Queue</b> holds the pre-written reminder email for anyone who hasn't.</p></details>
+  <details><summary>What do the statuses mean?</summary><p><b>Generated</b> — the waiver exists but hasn't been sent. <b>Sent</b> — it's with the sub. <b>Chased</b> — at least one reminder has gone out. <b>Received</b> — the signed waiver is in hand and logged. Only Received counts toward a job's completeness bar.</p></details>
+  <details><summary>How does the chasing work?</summary><p>The <b>Chase Queue</b> lists every outstanding waiver, finals and big dollars first, with the email already written and the sign link inside it. The ladder runs at 3, 7, and 14 days after sending. Mark a chase done and the card re-sorts; mark the waiver received and it leaves the queue and lands in the Received Log.</p></details>
+  <details><summary>What does "matched" mean in the Received Log?</summary><p>When a signed waiver is logged, WaiverChase checks it against its pay app: same sub, same form type, <b>same amount</b>, same through-date. A waiver for the wrong amount is flagged as a mismatch and does <b>not</b> cover the payment — the original waiver stays in the chase queue until the right one arrives.</p></details>
+  <details><summary>Where does my data live? How do I back it up?</summary><p>In this demo edition, everything lives <b>on this device, in this browser</b> — no account, nothing uploaded. Export the waiver log CSV from the Dashboard to keep a dated copy, and use Reset below to restore the fictional sample data or Clear to empty the app. Clearing your browser's site data erases your records, so export before you do.</p></details>
+  <div class="toolbar" style="margin-top:16px;">
+    <a class="btn" id="emailUsBtn" href="mailto:whitewolfbackoffice@gmail.com?subject=WaiverChase%20help%20%E2%80%94%20v0.1.0-demo&amp;body=Tell%20us%20what%20you%20were%20trying%20to%20do%20and%20what%20happened%3A%0A%0A">Email us</a>
+    <button class="btn secondary" id="resetDataBtn">Reset demo data</button>
+    <button class="btn danger" id="clearDataBtn">Clear demo data</button>
+  </div>
+  <p style="font-size:12.5px; color:var(--mut);">WaiverChase organizes and chases lien waivers. It is not legal advice and does not interpret lien law — your contracts and your attorney decide which waivers each job requires.</p>
+</section>
+</main>
+<footer>
+  <div><b>WaiverChase</b> — a White Wolf Tree Service LLC · Back-Office Services product. Questions or the pilot: whitewolfbackoffice@gmail.com</div>
+  <div style="margin-top:6px;">Demo build v0.1.0-demo · All companies, people, jobs, and waivers shown are fictional sample data. Works offline; no account; your data stays on this device.</div>
+</footer>
+<div id="toast"></div>
+<div id="printArea"></div>
+
+<script>
+var VERSION = "v0.1.0-demo";
+var LS_KEY = "waiverchase_demo_v1";
+var state = null;
+
+function $(id){ return document.getElementById(id); }
+function esc(v){ return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function money(n){ return "$" + Number(n||0).toLocaleString("en-US"); }
+function toast(msg){ var t = $("toast"); t.textContent = msg; t.style.display = "block"; clearTimeout(t._h); t._h = setTimeout(function(){ t.style.display = "none"; }, 3400); }
+function dISO(d){ var p = function(n){ return (n<10?"0":"") + n; }; return d.getFullYear() + "-" + p(d.getMonth()+1) + "-" + p(d.getDate()); }
+function daysFromNow(n){ var d = new Date(); d.setDate(d.getDate()+n); return dISO(d); }
+function todayISO(){ return dISO(new Date()); }
+function fmtDate(iso){ if(!iso) return "—"; var d = new Date(iso+"T00:00:00"); return isNaN(d.getTime()) ? "—" : d.toLocaleDateString("en-US",{month:"short", day:"numeric", year:"numeric"}); }
+function plural(n, w){ return n + " " + w + (n===1?"":"s"); }
+
+/* ---------- waiver types & state forms ---------- */
+var TYPE_LABEL = {cp:"Conditional Progress", up:"Unconditional Progress", cf:"Conditional Final", uf:"Unconditional Final"};
+var TYPE_SHORT = {cp:"Cond. Progress", up:"Uncond. Progress", cf:"Cond. Final", uf:"Uncond. Final"};
+function isFinal(t){ return t === "cf" || t === "uf"; }
+function formName(stateCode, type){
+  var base = TYPE_LABEL[type] + " Waiver and Release";
+  if(stateCode === "CA"){
+    var cc = {cp:"Civil Code §8132", up:"Civil Code §8134", cf:"Civil Code §8136", uf:"Civil Code §8138"}[type];
+    return "California Statutory " + base + " — " + cc;
+  }
+  if(stateCode === "TX") return "Texas Statutory " + base + " — Property Code Chapter 53, Subchapter L";
+  return "Oklahoma " + base + " — custom form (Oklahoma prescribes no statutory waiver form; lien law Title 42)";
+}
+function notaryFlag(job, w){ return isFinal(w.type) && (job.state === "TX" || job.state === "CA"); }
+
+/* ---------- seed data (all fictional) ---------- */
+function W(id, payappId, jobId, subId, type, amount, status, opts){
+  opts = opts || {};
+  return {id:id, payappId:payappId, jobId:jobId, subId:subId, type:type, amount:amount, status:status,
+    throughDate:opts.through || daysFromNow(22), sentDate:opts.sent || null, chases:opts.chases || 0,
+    lastChase:opts.lastChase || null, receivedDate:opts.received || null};
+}
+function seedData(){
+  var jobs = [
+    {id:"j1", name:"Lakeside Medical Plaza", location:"Grove, OK", state:"OK", contract:1240000},
+    {id:"j2", name:"Route 66 Retail Pad", location:"Vinita, OK", state:"OK", contract:860000},
+    {id:"j3", name:"Texoma Retail Center", location:"Denison, TX", state:"TX", contract:975000}
+  ];
+  var subs = [
+    {id:1, name:"AquaFlow Plumbing", trade:"Plumbing", contact:"Dana Ruiz", email:"office@aquaflowplumbing.com", jobIds:["j1"]},
+    {id:2, name:"VoltEdge Electric", trade:"Electrical", contact:"Sam Ortiz", email:"sam@voltedgeelectric.com", jobIds:["j1"]},
+    {id:3, name:"Summit Roofing Co", trade:"Roofing", contact:"Bill Karr", email:"bill@summitroofingco.com", jobIds:["j1"]},
+    {id:4, name:"Timberline Framing", trade:"Framing", contact:"Alex Reed", email:"alex@timberlineframing.com", jobIds:["j1"]},
+    {id:5, name:"RedDirt Concrete", trade:"Concrete", contact:"Joe Pruitt", email:"joe@reddirtconcrete.com", jobIds:["j2"]},
+    {id:6, name:"Grand Lake HVAC", trade:"HVAC", contact:"Tina Moss", email:"tina@grandlakehvac.com", jobIds:["j2"]},
+    {id:7, name:"ProPaint Interiors", trade:"Painting", contact:"Maria Chen", email:"maria@propaintinteriors.com", jobIds:["j2"]},
+    {id:8, name:"ClearView Glass", trade:"Glass & Glazing", contact:"Pat Nolan", email:"pat@clearviewglass.com", jobIds:["j3"]},
+    {id:9, name:"Drywall Dynamics", trade:"Drywall", contact:"Kim Avery", email:"kim@drywalldynamics.com", jobIds:["j3"]}
+  ];
+  var payapps = [
+    {id:"pa1", jobId:"j1", number:3, period:"October 2026", throughDate:daysFromNow(-39), notes:""},
+    {id:"pa2", jobId:"j1", number:4, period:"November 2026", throughDate:daysFromNow(22), notes:""},
+    {id:"pa3", jobId:"j2", number:2, period:"November 2026", throughDate:daysFromNow(22), notes:""},
+    {id:"pa4", jobId:"j3", number:1, period:"November 2026", throughDate:daysFromNow(22), notes:""}
+  ];
+  var T1 = daysFromNow(-39), T2 = daysFromNow(22);
+  var waivers = [
+    W(1,  "pa1","j1",1,"up",16500,"received",{through:T1, sent:daysFromNow(-44), received:daysFromNow(-34)}),
+    W(2,  "pa1","j1",2,"up",20100,"received",{through:T1, sent:daysFromNow(-44), received:daysFromNow(-34)}),
+    W(3,  "pa1","j1",3,"up",28400,"received",{through:T1, sent:daysFromNow(-44), received:daysFromNow(-33)}),
+    W(4,  "pa1","j1",4,"up",12900,"received",{through:T1, sent:daysFromNow(-44), received:daysFromNow(-34)}),
+    W(5,  "pa2","j1",1,"cp",18500,"received",{through:T2, sent:daysFromNow(-6), received:daysFromNow(-2)}),
+    W(6,  "pa2","j1",2,"cp",22750,"received",{through:T2, sent:daysFromNow(-6), received:daysFromNow(-1)}),
+    W(7,  "pa2","j1",3,"cp",31200,"chased",  {through:T2, sent:daysFromNow(-6), chases:2, lastChase:daysFromNow(-1)}),
+    W(8,  "pa2","j1",4,"cp",14900,"sent",    {through:T2, sent:daysFromNow(-6)}),
+    W(9,  "pa3","j2",5,"cp",19750,"received",{through:T2, sent:daysFromNow(-6), received:daysFromNow(-3)}),
+    W(10, "pa3","j2",6,"cp",13400,"chased",  {through:T2, sent:daysFromNow(-6), chases:1, lastChase:daysFromNow(-2)}),
+    W(11, "pa3","j2",7,"cp",9400,"received", {through:T2, sent:daysFromNow(-6), received:daysFromNow(-2)}),
+    W(12, "pa4","j3",9,"up",15800,"received",{through:T2, sent:daysFromNow(-6), received:daysFromNow(-4)}),
+    W(13, null, "j3",8,"uf",42600,"chased",  {through:daysFromNow(-9), sent:daysFromNow(-16), chases:2, lastChase:daysFromNow(-3)})
+  ];
+  var receipts = waivers.filter(function(w){ return w.status === "received"; }).map(function(w, i){
+    return {id:"r" + (i+1), waiverId:w.id, subId:w.subId, jobId:w.jobId, payappId:w.payappId, type:w.type, amount:w.amount, date:w.receivedDate, match:"matched"};
+  });
+  return {jobs:jobs, subs:subs, payapps:payapps, waivers:waivers, receipts:receipts, nextSubId:10, nextWaiverId:14, nextReceiptId:receipts.length+1, nextJobSeq:4, nextPayappSeq:5};
+}
+function isObj(x){ return !!x && typeof x === "object" && !Array.isArray(x); }
+function asStr(x){ return (x === null || x === undefined) ? "" : String(x); }
+function fixCounter(p, key, ids, prefix){
+  var mx = 0;
+  ids.forEach(function(id){ var n = parseInt(asStr(id).replace(prefix, ""), 10); if(isFinite(n) && n > mx) mx = n; });
+  var cur = Number(p[key]);
+  if(!isFinite(cur) || cur <= mx) p[key] = mx + 1;
+}
+/* Deep-validate stored state: corrupted ENTRIES are dropped or coerced, valid
+   records survive — a damaged save can never brick the app or lose good data. */
+function sanitize(p){
+  p.jobs = p.jobs.filter(isObj).map(function(j){
+    return {id:asStr(j.id), name:asStr(j.name), location:asStr(j.location), state:["OK","TX","CA"].indexOf(j.state) >= 0 ? j.state : "OK", contract:Math.max(0, Number(j.contract) || 0)};
+  }).filter(function(j){ return !!j.id; });
+  p.subs = p.subs.filter(isObj).map(function(s){
+    return {id:s.id, name:asStr(s.name), trade:asStr(s.trade), contact:asStr(s.contact), email:asStr(s.email), jobIds:Array.isArray(s.jobIds) ? s.jobIds.map(asStr) : []};
+  }).filter(function(s){ return isFinite(Number(s.id)); });
+  p.payapps = p.payapps.filter(isObj).map(function(a){
+    return {id:asStr(a.id), jobId:asStr(a.jobId), number:Math.max(0, Math.round(Number(a.number) || 0)), period:asStr(a.period), throughDate:typeof a.throughDate === "string" ? a.throughDate : null, notes:asStr(a.notes)};
+  }).filter(function(a){ return !!a.id; });
+  p.waivers = p.waivers.filter(function(w){ return isObj(w) && isFinite(Number(w.id)); }).map(function(w){
+    return {id:Number(w.id), payappId:w.payappId ? asStr(w.payappId) : null, jobId:asStr(w.jobId), subId:w.subId,
+      type:TYPE_LABEL[w.type] ? w.type : "cp", amount:Math.max(0, Number(w.amount) || 0),
+      status:["generated","sent","chased","received"].indexOf(w.status) >= 0 ? w.status : "generated",
+      throughDate:typeof w.throughDate === "string" ? w.throughDate : null,
+      sentDate:typeof w.sentDate === "string" ? w.sentDate : null,
+      chases:Math.max(0, Math.round(Number(w.chases) || 0)),
+      lastChase:typeof w.lastChase === "string" ? w.lastChase : null,
+      receivedDate:typeof w.receivedDate === "string" ? w.receivedDate : null};
+  });
+  p.receipts = p.receipts.filter(isObj).map(function(r){
+    return {id:asStr(r.id), waiverId:r.waiverId, subId:r.subId, jobId:asStr(r.jobId), payappId:r.payappId ? asStr(r.payappId) : null, type:TYPE_LABEL[r.type] ? r.type : "cp", amount:Math.max(0, Number(r.amount) || 0), date:typeof r.date === "string" ? r.date : null, match:r.match === "matched" ? "matched" : "mismatch"};
+  }).filter(function(r){ return !!r.id; });
+  fixCounter(p, "nextSubId", p.subs.map(function(s){ return s.id; }), "");
+  fixCounter(p, "nextWaiverId", p.waivers.map(function(w){ return w.id; }), "");
+  fixCounter(p, "nextReceiptId", p.receipts.map(function(r){ return r.id; }), "r");
+  fixCounter(p, "nextJobSeq", p.jobs.map(function(j){ return j.id; }), "j");
+  fixCounter(p, "nextPayappSeq", p.payapps.map(function(a){ return a.id; }), "pa");
+  return p;
+}
+function load(){
+  try{ var raw = localStorage.getItem(LS_KEY); if(raw){ var p = JSON.parse(raw); if(p && Array.isArray(p.jobs) && Array.isArray(p.subs) && Array.isArray(p.payapps) && Array.isArray(p.waivers) && Array.isArray(p.receipts)){ p = sanitize(p); save(p); return p; } } }catch(e){}
+  var s = seedData(); save(s); return s;
+}
+function save(s){ try{ localStorage.setItem(LS_KEY, JSON.stringify(s||state)); }catch(e){} }
+
+/* ---------- lookups & math (single source of truth) ---------- */
+function jobById(id){ return state.jobs.find(function(j){ return j.id === id; }) || {id:id, name:"(deleted job)", location:"", state:"OK", contract:0}; }
+function subById(id){ return state.subs.find(function(s){ return s.id === id; }) || {id:id, name:"(deleted sub)", trade:"", contact:"", email:"", jobIds:[]}; }
+function payappById(id){ return state.payapps.find(function(p){ return p.id === id; }) || null; }
+function payappLabel(w){
+  if(w.payappId){ var p = payappById(w.payappId); if(p) return "Pay App #" + p.number; }
+  return isFinal(w.type) ? "Closeout — Final" : "—";
+}
+function waiverStats(list){
+  var total = list.length, received = 0, covered = 0, exposed = 0, finalsMissing = 0;
+  list.forEach(function(w){ if(w.status === "received"){ received++; covered += w.amount; } else { exposed += w.amount; if(isFinal(w.type)) finalsMissing++; } });
+  var totalAmt = covered + exposed;
+  return {total:total, received:received, outstanding:total-received, covered:covered, exposed:exposed, totalAmt:totalAmt,
+    pct: total ? Math.round(received/total*100) : 0, finalsMissing:finalsMissing};
+}
+function jobWaivers(jobId){ return state.waivers.filter(function(w){ return w.jobId === jobId; }); }
+function payappWaivers(paId){ return state.waivers.filter(function(w){ return w.payappId === paId; }); }
+function signLink(w){ return "https://sign.waiverchase.example/w/" + w.id; }
+function statusPill(w){
+  if(w.status === "received") return '<span class="pill received">Received</span>';
+  if(w.status === "chased") return '<span class="pill chased">Chased</span>' + (isFinal(w.type) ? ' <span class="pill final">Final</span>' : '');
+  if(w.status === "sent") return '<span class="pill sent">Sent</span>';
+  return '<span class="pill generated">Generated</span>';
+}
+function chaseEmail(w){
+  var s = subById(w.subId), j = jobById(w.jobId);
+  var subject = "Lien waiver to sign — " + j.name + " — " + TYPE_LABEL[w.type] + " — " + money(w.amount);
+  var body = "Hi " + (s.contact || s.name) + ",\n\n" +
+    "Your " + TYPE_LABEL[w.type].toLowerCase() + " lien waiver for " + j.name + " (" + payappLabel(w) + ") is ready — it covers " + money(w.amount) + " of work through " + fmtDate(w.throughDate) + ".\n\n" +
+    "Sign and return it here (no account needed):\n" + signLink(w) + "\n\n" +
+    "We can't release this payment until the signed waiver is in. If the amount doesn't match your records, reply to this email and we'll sort it out.\n\n" +
+    "Thanks,\nRedbud Commercial Builders";
+  return {to:s.email || "", subject:subject, body:body};
+}
+
+/* ---------- views ---------- */
+function showView(name){
+  var panels = document.querySelectorAll("section.panel");
+  for(var i=0;i<panels.length;i++){ panels[i].classList.toggle("active", panels[i].id === "view-" + name); }
+  var btns = document.querySelectorAll("#mainNav button");
+  for(var j=0;j<btns.length;j++){ btns[j].classList.toggle("active", btns[j].getAttribute("data-view") === name); }
+}
+var navBtns = document.querySelectorAll("#mainNav button");
+for(var n=0;n<navBtns.length;n++){ navBtns[n].addEventListener("click", function(){ showView(this.getAttribute("data-view")); }); }
+
+function renderDashboard(){
+  var st = waiverStats(state.waivers);
+  $("statPct").textContent = st.total ? st.pct + "%" : "—";
+  $("statInNote").textContent = st.received + " of " + st.total + " waivers received";
+  $("statCovered").textContent = money(st.covered);
+  $("statExposed").textContent = money(st.exposed);
+  $("statOut").textContent = st.outstanding;
+  $("statFinals").textContent = st.finalsMissing;
+  $("barJobCount").textContent = state.jobs.length;
+  $("barToday").textContent = fmtDate(todayISO());
+  if(!st.total){ $("riskBanner").innerHTML = "No waivers yet. Enter your first pay app and WaiverChase generates them."; }
+  else if(st.outstanding){
+    var holdAmt = 0; state.payapps.forEach(function(p){ var ws = payappWaivers(p.id); var o = ws.filter(function(w){ return w.status !== "received"; }); if(o.length) holdAmt += o.reduce(function(a,w){ return a + w.amount; }, 0); });
+    $("riskBanner").innerHTML = "<b>Don't release payment yet on " + plural(state.payapps.filter(function(p){ return payappWaivers(p.id).some(function(w){ return w.status !== "received"; }); }).length, "pay app") + "</b> — " + money(holdAmt) + " of work is missing its waiver" + (st.finalsMissing ? ", and " + plural(st.finalsMissing, "final waiver") + " still " + (st.finalsMissing===1?"is":"are") + " missing at closeout" : "") + ". Pay without the waiver and you can be charged for the same work twice.";
+  } else { $("riskBanner").innerHTML = "<b>Every waiver is in.</b> The full log is ready for the owner, the lender, or the auditor."; }
+  var holds = state.payapps.map(function(p){ var ws = payappWaivers(p.id); var o = ws.filter(function(w){ return w.status !== "received"; }); return {p:p, o:o, amt:o.reduce(function(a,w){ return a + w.amount; }, 0)}; }).filter(function(x){ return x.o.length; });
+  $("holdList").innerHTML = holds.length ? holds.map(function(x){ return "<li><b>" + esc(jobById(x.p.jobId).name) + " — Pay App #" + x.p.number + "</b>: " + plural(x.o.length, "waiver") + " outstanding (" + money(x.amt) + ") — " + x.o.map(function(w){ return esc(subById(w.subId).name); }).join(", ") + "</li>"; }).join("") : "<li>No pay app is being held. Every payment is covered.</li>";
+  var clears = state.payapps.map(function(p){ var ws = payappWaivers(p.id); return {p:p, ws:ws}; }).filter(function(x){ return x.ws.length && x.ws.every(function(w){ return w.status === "received"; }); });
+  $("clearList").innerHTML = clears.length ? clears.map(function(x){ var amt = x.ws.reduce(function(a,w){ return a + w.amount; }, 0); return "<li><b>" + esc(jobById(x.p.jobId).name) + " — Pay App #" + x.p.number + "</b>: all " + x.ws.length + " waivers in (" + money(amt) + " covered)</li>"; }).join("") : "<li>Nothing is fully covered yet.</li>";
+}
+
+function renderJobs(){
+  var q = $("searchJobs").value.trim().toLowerCase();
+  var html = "";
+  var shown = 0;
+  state.jobs.forEach(function(j){
+    var ws = jobWaivers(j.id), st = waiverStats(ws);
+    var jobSubs = state.subs.filter(function(s){ return s.jobIds.indexOf(j.id) >= 0; });
+    var hay = (j.name + " " + j.location + " " + jobSubs.map(function(s){ return s.name; }).join(" ")).toLowerCase();
+    if(q && hay.indexOf(q) < 0) return;
+    shown++;
+    var barCls = st.pct >= 75 ? "" : (st.pct >= 50 ? "mid" : "low");
+    html += '<div class="jobcard"><h3>' + esc(j.name) + '</h3><div class="meta">' + esc(j.location) + " · " + esc(j.state) + " forms · Contract " + money(j.contract) + "</div>" +
+      '<div class="bar"><div class="' + barCls + '" style="width:' + st.pct + '%"></div></div>' +
+      "<div><b>" + st.pct + "% in</b> — " + st.received + " of " + st.total + " waivers received · " + money(st.covered) + " covered" + (st.exposed ? " · <b>" + money(st.exposed) + " still exposed</b>" : "") + "</div>" +
+      '<div style="margin-top:8px; font-size:13px; color:var(--mut);">Subs: ' + (jobSubs.length ? jobSubs.map(function(s){ return esc(s.name); }).join(", ") : "none assigned yet") + "</div></div>";
+  });
+  $("jobWrap").innerHTML = html;
+  $("jobEmpty").style.display = shown ? "none" : "block";
+  var opts = state.jobs.map(function(j){ return '<option value="' + j.id + '">' + esc(j.name) + "</option>"; }).join("");
+  $("asJob").innerHTML = opts; $("paJob").innerHTML = opts;
+  renderPaAmounts();
+}
+$("searchJobs").addEventListener("input", renderJobs);
+
+$("ajAddBtn").addEventListener("click", function(){
+  var name = $("ajName").value.trim();
+  if(!name){ $("ajErr").textContent = "Give the job a name first — that's the one thing we can't guess."; $("ajErr").style.display = "block"; return; }
+  $("ajErr").style.display = "none";
+  var contract = Number($("ajContract").value); if(!isFinite(contract) || contract < 0) contract = 0;
+  state.jobs.push({id:"j" + (state.nextJobSeq++), name:name, location:$("ajLoc").value.trim(), state:$("ajState").value, contract:contract});
+  save(); renderAll();
+  ["ajName","ajLoc","ajContract"].forEach(function(id){ $(id).value = ""; });
+  toast(name + " added.");
+});
+$("asAddBtn").addEventListener("click", function(){
+  var name = $("asName").value.trim();
+  if(!name){ $("asErr").textContent = "Give the subcontractor a company name first."; $("asErr").style.display = "block"; return; }
+  $("asErr").style.display = "none";
+  var jobId = $("asJob").value;
+  var v = {id: state.nextSubId++, name:name, trade:$("asTrade").value, contact:$("asContact").value.trim(), email:$("asEmail").value.trim(), jobIds: jobId ? [jobId] : []};
+  state.subs.push(v); save(); renderAll();
+  ["asName","asContact","asEmail"].forEach(function(id){ $(id).value = ""; });
+  toast(name + " added.");
+});
+
+/* ---------- pay apps ---------- */
+function renderPaAmounts(){
+  var jobId = $("paJob").value;
+  var jobSubs = state.subs.filter(function(s){ return s.jobIds.indexOf(jobId) >= 0; });
+  $("paAmounts").innerHTML = jobSubs.length ? jobSubs.map(function(s){
+    return '<div class="field"><label class="flabel" for="paAmt-' + s.id + '">' + esc(s.name) + " (" + esc(s.trade) + ")</label><input type=\"number\" id=\"paAmt-" + s.id + "\" min=\"0\" step=\"1\" placeholder=\"0\"></div>";
+  }).join("") : '<p class="pdesc">No subs on this job yet — add them on the Jobs tab.</p>';
+}
+$("paJob").addEventListener("change", renderPaAmounts);
+$("paSaveBtn").addEventListener("click", function(){
+  $("paErr").style.display = "none"; $("paOk").style.display = "none";
+  var jobId = $("paJob").value, num = Number($("paNumber").value), period = $("paPeriod").value.trim();
+  if(!jobId){ $("paErr").textContent = "Pick a job first."; $("paErr").style.display = "block"; return; }
+  if(!num || num < 1 || Math.floor(num) !== num){ $("paErr").textContent = "Give the pay app a number (1, 2, 3…)."; $("paErr").style.display = "block"; return; }
+  if(!period){ $("paErr").textContent = "Give the pay app a period label, like “December 2026”."; $("paErr").style.display = "block"; return; }
+  if(state.payapps.some(function(p){ return p.jobId === jobId && p.number === num; })){ $("paErr").textContent = "Pay App #" + num + " already exists for this job — pick the next number so waivers never match the wrong app."; $("paErr").style.display = "block"; return; }
+  var jobSubs = state.subs.filter(function(s){ return s.jobIds.indexOf(jobId) >= 0; });
+  var lines = [];
+  jobSubs.forEach(function(s){ var el = $("paAmt-" + s.id); var amt = el ? Number(el.value) : 0; var rounded = Math.round(amt); if(isFinite(amt) && rounded > 0) lines.push({sub:s, amount:rounded}); });
+  if(!lines.length){ $("paErr").textContent = "Enter at least one sub's amount — a pay app with no amounts generates no waivers."; $("paErr").style.display = "block"; return; }
+  var paId = "pa" + (state.nextPayappSeq++);
+  var through = $("paThrough").value || todayISO();
+  state.payapps.push({id:paId, jobId:jobId, number:num, period:period, throughDate:through, notes:$("paNotes").value.trim()});
+  lines.forEach(function(l){ state.waivers.push(W(state.nextWaiverId++, paId, jobId, l.sub.id, "cp", l.amount, "generated", {through:through})); });
+  save(); renderAll();
+  $("paOk").textContent = "Pay App #" + num + " saved — " + plural(lines.length, "waiver") + " generated. Open the Waiver Packet tab to send them.";
+  $("paOk").style.display = "block"; $("paNumber").value = ""; $("paNotes").value = "";
+  toast("Pay App #" + num + " saved — waivers generated.");
+});
+function renderPayapps(){
+  var rows = state.payapps.map(function(p){
+    var ws = payappWaivers(p.id), st = waiverStats(ws);
+    return "<tr><td><b>#" + p.number + "</b></td><td>" + esc(jobById(p.jobId).name) + "</td><td>" + esc(p.period) + "</td><td>" + money(st.totalAmt) + "</td><td>" + money(st.covered) + "</td><td>" + st.received + " of " + st.total + " in</td></tr>";
+  }).join("");
+  $("payappBody").innerHTML = rows;
+  $("payappEmpty").style.display = state.payapps.length ? "none" : "block";
+  var opts = state.payapps.map(function(p){ return '<option value="' + p.id + '">' + esc(jobById(p.jobId).name) + " — Pay App #" + p.number + " (" + esc(p.period) + ")</option>"; }).join("");
+  var cur = $("pkPayapp").value;
+  $("pkPayapp").innerHTML = opts;
+  if(cur && state.payapps.some(function(p){ return p.id === cur; })) $("pkPayapp").value = cur;
+  renderPacket();
+}
+
+/* ---------- packet ---------- */
+function renderPacket(){
+  var paId = $("pkPayapp").value;
+  var ws = paId ? payappWaivers(paId) : [];
+  var p = payappById(paId);
+  $("pkWrap").innerHTML = ws.map(function(w){
+    var j = jobById(w.jobId), s = subById(w.subId);
+    return '<div class="doccard"><h3>' + esc(s.name) + " — " + TYPE_LABEL[w.type] + '</h3><div class="formname">' + esc(formName(j.state, w.type)) + " · Status: " + w.status + "</div>" +
+      "<table><tr><td style=\"width:180px;\"><b>Claimant</b></td><td>" + esc(s.name) + "</td></tr>" +
+      "<tr><td><b>Job</b></td><td>" + esc(j.name) + ", " + esc(j.location) + "</td></tr>" +
+      "<tr><td><b>Pay app</b></td><td>#" + (p ? p.number : "—") + " · " + (p ? esc(p.period) : "") + "</td></tr>" +
+      "<tr><td><b>Amount covered</b></td><td>" + money(w.amount) + "</td></tr>" +
+      "<tr><td><b>Through date</b></td><td>" + fmtDate(w.throughDate) + "</td></tr>" +
+      "<tr><td><b>Sign &amp; return</b></td><td>" + signLink(w) + " (no login)</td></tr>" +
+      (notaryFlag(j, w) ? "<tr><td><b>⚠ Notarization</b></td><td>Flagged — final waivers on " + esc(j.state) + " jobs may need notarization for the owner/lender.</td></tr>" : "") +
+      '</table><div class="sigline">Signature of claimant</div></div>';
+  }).join("");
+  $("pkEmpty").style.display = ws.length ? "none" : "block";
+  var btn = $("pkSendAllBtn"); btn.disabled = !ws.length || ws.every(function(w){ return w.status !== "generated"; });
+}
+$("pkPayapp").addEventListener("change", renderPacket);
+$("pkSendAllBtn").addEventListener("click", function(){
+  var paId = $("pkPayapp").value, n = 0;
+  state.waivers.forEach(function(w){ if(w.payappId === paId && w.status === "generated"){ w.status = "sent"; w.sentDate = todayISO(); n++; } });
+  save(); renderAll(); toast(n ? plural(n, "waiver") + " marked sent." : "Nothing new to send.");
+});
+$("pkPrintBtn").addEventListener("click", function(){
+  var paId = $("pkPayapp").value, ws = payappWaivers(paId), p = payappById(paId);
+  if(!ws.length){ toast("No waivers in this packet to print."); return; }
+  $("printArea").innerHTML = "<h2>Waiver Packet — " + esc(jobById(p.jobId).name) + " — Pay App #" + p.number + "</h2><p>Generated " + fmtDate(todayISO()) + " by WaiverChase (demo)</p>" + ws.map(function(w){
+    var j = jobById(w.jobId), s = subById(w.subId);
+    return '<div class="docpage"><h3>' + esc(formName(j.state, w.type)) + "</h3><p>Claimant: " + esc(s.name) + "<br>Job: " + esc(j.name) + ", " + esc(j.location) + "<br>Amount covered: " + money(w.amount) + "<br>Through date: " + fmtDate(w.throughDate) + (notaryFlag(j, w) ? "<br><b>Notarization flagged for this final waiver.</b>" : "") + '</p><div class="sigline">Signature of claimant</div></div>';
+  }).join("");
+  window.print();
+});
+
+/* ---------- chase queue ---------- */
+function renderChase(){
+  var out = state.waivers.filter(function(w){ return w.status !== "received"; });
+  out.sort(function(a, b){
+    var fa = isFinal(a.type) ? 0 : 1, fb = isFinal(b.type) ? 0 : 1;
+    if(fa !== fb) return fa - fb;
+    return b.amount - a.amount;
+  });
+  $("chaseCount").textContent = out.length ? plural(out.length, "waiver") + " outstanding — " + money(out.reduce(function(a,w){ return a + w.amount; }, 0)) + " of work uncovered" : "Nothing outstanding";
+  $("chaseWrap").innerHTML = out.map(function(w){
+    var s = subById(w.subId), j = jobById(w.jobId), e = chaseEmail(w);
+    var cls = isFinal(w.type) ? "" : (w.status === "chased" ? "" : (w.status === "sent" ? "amber" : "grey"));
+    var stage = w.status === "generated" ? "Not sent yet — send it from the Waiver Packet tab." : ("Sent " + fmtDate(w.sentDate) + " · " + (w.chases ? plural(w.chases, "chase") + ", last " + fmtDate(w.lastChase) : "no chases yet") + " · ladder: 3 / 7 / 14 days");
+    return '<div class="chasecard ' + cls + '"><h3>' + esc(s.name) + " — " + money(w.amount) + '</h3><div class="meta">' + esc(j.name) + " · " + payappLabel(w) + " · " + TYPE_LABEL[w.type] + " · through " + fmtDate(w.throughDate) + "<br>" + stage + "</div>" +
+      '<div class="magiclink">No-login sign link: ' + signLink(w) + "</div>" +
+      '<div class="field"><label class="flabel" for="chaseMail-' + w.id + '">Reminder email (written for you)</label><textarea id="chaseMail-' + w.id + '" rows="7" readonly>Subject: ' + esc(e.subject) + "\n\n" + esc(e.body) + "</textarea></div>" +
+      '<button class="btn small" data-chase="copy" data-id="' + w.id + '">Copy email</button>' +
+      '<button class="btn small secondary" data-chase="chased" data-id="' + w.id + '">Mark chased</button>' +
+      '<button class="btn small blue" data-chase="received" data-id="' + w.id + '">Mark received</button></div>';
+  }).join("");
+  $("chaseEmpty").style.display = out.length ? "none" : "block";
+  var btns = document.querySelectorAll("#chaseWrap button");
+  for(var i=0;i<btns.length;i++){ btns[i].addEventListener("click", onChaseAction); }
+}
+function markReceived(w, amount, date){
+  if(w.status === "received") return; /* double-submit guard: a waiver is logged once */
+  w.status = "received"; w.receivedDate = date || todayISO();
+  state.receipts.push({id:"r" + (state.nextReceiptId++), waiverId:w.id, subId:w.subId, jobId:w.jobId, payappId:w.payappId, type:w.type, amount:(amount==null ? w.amount : amount), date:w.receivedDate, match:"matched"});
+}
+function onChaseAction(){
+  var id = Number(this.getAttribute("data-id")), act = this.getAttribute("data-chase");
+  var w = state.waivers.find(function(x){ return x.id === id; }); if(!w) return;
+  if(act === "copy"){
+    var ta = $("chaseMail-" + id);
+    if(ta){ ta.select(); try{ document.execCommand("copy"); }catch(e){} }
+    toast("Email copied — paste it into your own mail app.");
+  }
+  if(act === "chased"){
+    if(w.status === "generated") w.status = "sent";
+    w.status = "chased"; w.chases = (w.chases || 0) + 1; w.lastChase = todayISO(); if(!w.sentDate) w.sentDate = todayISO();
+    save(); renderAll(); toast("Chase logged for " + subById(w.subId).name + ".");
+  }
+  if(act === "received"){
+    markReceived(w); save(); renderAll(); toast("Waiver from " + subById(w.subId).name + " logged as received and matched.");
+  }
+}
+
+/* ---------- received log ---------- */
+function renderReceived(){
+  var q = $("recSearch").value.trim().toLowerCase();
+  var rows = state.receipts.filter(function(r){
+    var hay = (subById(r.subId).name + " " + jobById(r.jobId).name + " " + TYPE_LABEL[r.type]).toLowerCase();
+    return !q || hay.indexOf(q) >= 0;
+  });
+  $("recBody").innerHTML = rows.map(function(r){
+    return "<tr><td>" + fmtDate(r.date) + "</td><td><b>" + esc(subById(r.subId).name) + "</b></td><td>" + esc(jobById(r.jobId).name) + "<br><span style=\"font-size:12.5px; color:var(--mut);\">" + (r.payappId ? "Pay App #" + (payappById(r.payappId) ? payappById(r.payappId).number : "—") : "Closeout") + "</span></td><td>" + TYPE_SHORT[r.type] + "</td><td>" + money(r.amount) + "</td><td>" + (r.match === "matched" ? '<span class="pill matched">Matched ✓</span>' : '<span class="pill mismatch">Mismatch — amount differs</span>') + "</td></tr>";
+  }).join("");
+  $("recEmpty").style.display = rows.length ? "none" : "block";
+  var out = state.waivers.filter(function(w){ return w.status !== "received"; });
+  var cur = $("lrWaiver").value;
+  $("lrWaiver").innerHTML = out.length ? out.map(function(w){ return '<option value="' + w.id + '">' + esc(subById(w.subId).name) + " — " + esc(jobById(w.jobId).name) + " — " + TYPE_SHORT[w.type] + " — " + money(w.amount) + "</option>"; }).join("") : '<option value="">Nothing outstanding</option>';
+  if(cur && out.some(function(w){ return String(w.id) === cur; })) $("lrWaiver").value = cur;
+  syncLrAmount();
+}
+function syncLrAmount(){
+  var w = state.waivers.find(function(x){ return x.id === Number($("lrWaiver").value); });
+  if(w && document.activeElement !== $("lrAmount")) $("lrAmount").value = w.amount;
+  if(!$("lrDate").value) $("lrDate").value = todayISO();
+}
+$("lrWaiver").addEventListener("change", syncLrAmount);
+$("recSearch").addEventListener("input", renderReceived);
+$("lrLogBtn").addEventListener("click", function(){
+  $("lrErr").style.display = "none"; $("lrOk").style.display = "none";
+  var w = state.waivers.find(function(x){ return x.id === Number($("lrWaiver").value); });
+  if(!w){ $("lrErr").textContent = "Nothing is outstanding to log against."; $("lrErr").style.display = "block"; return; }
+  var amt = Number($("lrAmount").value);
+  if(!isFinite(amt) || amt <= 0){ $("lrErr").textContent = "Enter the amount printed on the signed waiver."; $("lrErr").style.display = "block"; return; }
+  amt = Math.round(amt);
+  var date = $("lrDate").value || todayISO();
+  if(amt === w.amount){
+    markReceived(w, amt, date); save(); renderAll();
+    $("lrOk").textContent = "Logged and matched ✓ — " + subById(w.subId).name + "'s waiver covers Pay App amount exactly.";
+    $("lrOk").style.display = "block";
+  } else {
+    state.receipts.push({id:"r" + (state.nextReceiptId++), waiverId:w.id, subId:w.subId, jobId:w.jobId, payappId:w.payappId, type:w.type, amount:amt, date:date, match:"mismatch"});
+    save(); renderAll();
+    $("lrErr").textContent = "Flagged as a mismatch: the signed waiver says " + money(amt) + " but the pay app says " + money(w.amount) + ". It is in the log, but it does NOT cover the payment — the original stays in the chase queue.";
+    $("lrErr").style.display = "block";
+  }
+});
+
+/* ---------- closeout ---------- */
+function renderCloseout(){
+  $("closeWrap").innerHTML = state.jobs.map(function(j){
+    var finals = state.waivers.filter(function(w){ return w.jobId === j.id && isFinal(w.type); });
+    var missing = finals.filter(function(w){ return w.status !== "received"; });
+    var rows = finals.length ? finals.map(function(w){
+      return "<li><b>" + esc(subById(w.subId).name) + "</b> — " + TYPE_LABEL[w.type] + " — " + money(w.amount) + " — " + (w.status === "received" ? "✅ in hand (" + fmtDate(w.receivedDate) + ")" : "⛔ still out" + (notaryFlag(j, w) ? " · notarization flagged" : "")) + "</li>";
+    }).join("") : "<li>No final waivers have been requested on this job yet. Finals are generated at closeout — request them before the last pay app.</li>";
+    return '<div class="jobcard"><h3>' + esc(j.name) + '</h3><div class="meta">' + esc(j.location) + " · Contract " + money(j.contract) + "</div><ul style=\"margin-left:18px; font-size:13.5px;\">" + rows + "</ul>" +
+      (missing.length ? '<p style="margin-top:10px;"><b>Hold final payment:</b> ' + money(missing.reduce(function(a,w){ return a + w.amount; }, 0)) + " of final waivers still out on this job.</p>" : (finals.length ? '<p style="margin-top:10px;"><b>Closeout clear:</b> every final waiver is in hand.</p>' : "")) + "</div>";
+  }).join("");
+}
+
+/* ---------- dashboard exports ---------- */
+function exportCsv(){
+  var head = "sub,trade,job,pay_app,waiver_type,form,amount,through_date,status,received_date\n";
+  var lines = state.waivers.map(function(w){
+    var s = subById(w.subId), j = jobById(w.jobId);
+    function q(v){ return '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"'; }
+    return [q(s.name), q(s.trade), q(j.name), q(payappLabel(w)), q(TYPE_LABEL[w.type]), q(formName(j.state, w.type)), w.amount, w.throughDate || "", w.status, w.receivedDate || ""].join(",");
+  });
+  var blob = new Blob([head + lines.join("\n")], {type:"text/csv"});
+  var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "waiverchase-log.csv"; document.body.appendChild(a); a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 400);
+  toast("Waiver log exported — " + lines.length + " waivers.");
+}
+$("exportCsvBtn").addEventListener("click", exportCsv);
+$("printLogBtn").addEventListener("click", function(){
+  var rows = state.waivers.map(function(w){ return "<tr><td>" + esc(subById(w.subId).name) + "</td><td>" + esc(jobById(w.jobId).name) + "</td><td>" + payappLabel(w) + "</td><td>" + TYPE_LABEL[w.type] + "</td><td>" + money(w.amount) + "</td><td>" + w.status + "</td></tr>"; }).join("");
+  $("printArea").innerHTML = "<h2>Waiver Log — Redbud Commercial Builders</h2><p>Generated " + fmtDate(todayISO()) + " by WaiverChase (demo) — fictional sample data</p><table><thead><tr><th>Sub</th><th>Job</th><th>Pay app</th><th>Waiver</th><th>Amount</th><th>Status</th></tr></thead><tbody>" + rows + "</tbody></table>";
+  window.print();
+});
+$("dashJobsBtn").addEventListener("click", function(){ showView("jobs"); });
+$("dashChaseBtn").addEventListener("click", function(){ showView("chase"); });
+$("dashPayBtn").addEventListener("click", function(){ showView("payapps"); });
+
+/* ---------- pilot ---------- */
+$("pilotTerms").addEventListener("change", function(){ $("pilotSubmit").disabled = !this.checked; });
+$("pilotSubmit").addEventListener("click", function(){
+  if(this.disabled) return;
+  var name = $("pilotName").value.trim(), company = $("pilotCompany").value.trim(), email = $("pilotEmail").value.trim(), jobs = $("pilotJobs").value;
+  var subject = encodeURIComponent("WaiverChase pilot request — $199 First-Project Setup");
+  var body = encodeURIComponent("Name: " + name + "\nCompany: " + company + "\nEmail: " + email + "\nRoughly how many active jobs: " + jobs + "\n\nI understand this is a request for the $199 First-Project Setup pilot: WaiverChase prepares and chases one pay-app cycle's waivers from the project details I provide, I stay the account holder, and nothing is billed until we confirm the pilot by email.");
+  window.location.href = "mailto:whitewolfbackoffice@gmail.com?subject=" + subject + "&body=" + body;
+});
+
+/* ---------- help / data ---------- */
+$("resetDataBtn").addEventListener("click", function(){
+  if(!confirm("Reset to the fictional sample data? Anything you entered in this demo will be replaced.")) return;
+  state = seedData(); save(); renderAll(); showView("dashboard"); toast("Sample data restored.");
+});
+$("clearDataBtn").addEventListener("click", function(){
+  if(!confirm("Clear ALL demo data (jobs, subs, pay apps, waivers, receipts)? This cannot be undone.")) return;
+  state = {jobs:[], subs:[], payapps:[], waivers:[], receipts:[], nextSubId:1, nextWaiverId:1, nextReceiptId:1, nextJobSeq:1, nextPayappSeq:1};
+  save(); renderAll(); showView("dashboard"); toast("Demo data cleared.");
+});
+
+/* ---------- voice (one-press mic, §9) ---------- */
+function dictate(targetId){
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR){ toast("Voice isn't available on this device/browser — typing works as always"); return; }
+  var rec;
+  try{ rec = new SR(); }catch(e){ toast("Voice isn't available on this device/browser — typing works as always"); return; }
+  rec.lang = "en-US"; rec.interimResults = false; rec.maxAlternatives = 1;
+  rec.onresult = function(ev){ var t = ev.results[0][0].transcript || ""; var el = $(targetId); if(el){ el.value = t; el.dispatchEvent(new Event("input", {bubbles:true})); el.dispatchEvent(new Event("change", {bubbles:true})); } };
+  rec.onerror = function(){ toast("Didn't catch that — try again or type it"); };
+  rec.start();
+}
+var micBtns = document.querySelectorAll("[data-mic]");
+for(var m=0;m<micBtns.length;m++){ micBtns[m].addEventListener("click", function(){ dictate(this.getAttribute("data-mic")); }); }
+
+/* ---------- boot ---------- */
+function renderAll(){ renderDashboard(); renderJobs(); renderPayapps(); renderChase(); renderReceived(); renderCloseout(); }
+state = load();
+renderAll();
+</script>
+</body>
+</html>
