@@ -123,10 +123,43 @@
     #printArea th, #printArea td{border:1px solid #ccc; padding:6px 8px;}
     #printArea .docpage{page-break-after:always; margin-bottom:24px;}
   }
+  /* ===== WaiverChase v0.1.1-demo: modern app-look redesign (BirdTally pattern, navy/yellow palette) ===== */
+  :root{--bar-h:64px;--shadow:0 2px 6px rgba(18,38,58,.07),0 10px 26px rgba(18,38,58,.08);}
+  body{padding-bottom:calc(var(--bar-h) + env(safe-area-inset-bottom) + 16px);}
+  header{position:sticky;top:0;z-index:40;background:linear-gradient(135deg,var(--navy),var(--navy2) 62%,#26557c);box-shadow:0 2px 12px rgba(18,38,58,.35);padding:12px 28px;}
+  header .mark{flex:0 0 auto;width:50px;height:50px;border-radius:15px;background:linear-gradient(145deg,#ffd34d,#f5b301);display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 3px 8px rgba(0,0,0,.25);}
+  header .logo{font-size:24px;line-height:1.1;}
+  /* Bottom tab bar. Nav buttons are static markup, so each carries real
+     icon/label spans; with TEN tabs the visible labels are shortened
+     ("Home", "Pay", "Packet", "Chase", "Log", "Close", "Forms",
+     "Pricing") and icons/labels run compact so all ten fit at 390px.
+     Each button's aria-label keeps the full original name. */
+  nav{position:fixed;left:0;right:0;bottom:0;top:auto;z-index:60;background:rgba(255,255,255,.97);border-top:1px solid var(--line);border-bottom:none;box-shadow:0 -3px 16px rgba(18,38,58,.14);padding:6px 6px calc(6px + env(safe-area-inset-bottom));flex-wrap:nowrap;justify-content:center;gap:2px;}
+  nav button{flex:1 1 0;min-width:0;max-width:110px;min-height:56px;background:none;border-bottom:none;color:var(--mut);border-radius:14px;padding:4px 0 5px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-weight:700;}
+  nav button .ic{font-size:18px;line-height:1.15;padding:3px 5px;border-radius:999px;transition:background .15s;pointer-events:none;}
+  nav button .lb{font-size:10px;letter-spacing:0;pointer-events:none;}
+  nav button.active{color:var(--navy);border-bottom:none;}
+  nav button.active .ic{background:#f5b301;box-shadow:0 2px 6px rgba(245,179,1,.5);}
+  section.panel.active{animation:wcTabIn .28s ease both;}
+  @keyframes wcTabIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .card,.statstrip,.formcard,.chasecard,.pricecard,.jobcard,.doccard,details,.empty{border-radius:16px;box-shadow:var(--shadow);}
+  .riskbanner{border-radius:16px;}
+  table{border-radius:16px;}
+  .bar{border-radius:999px;}
+  .btn{border-radius:999px;min-height:48px;}
+  .btn.small{min-height:44px;}
+  input[type=text], input[type=number], input[type=email], input[type=date], select, textarea{border-radius:12px;}
+  .micbtn{border-radius:50%;}
+  .pill{border-radius:999px;}
+  .err,.okmsg{border-radius:12px;}
+  .magiclink{border-radius:12px;}
+  #toast{bottom:calc(var(--bar-h) + env(safe-area-inset-bottom) + 14px);border-radius:999px;z-index:70;}
+  @media print{body{padding-bottom:0;}}
 </style>
 </head>
 <body>
 <header>
+  <div class="mark" aria-hidden="true">📋</div>
   <div>
     <div class="logo">Waiver<span>Chase</span></div>
     <div class="sub">Lien-waiver collection for small GCs — every waiver generated, sent, chased, and matched to its pay app.</div>
@@ -139,16 +172,16 @@
   <div>Today: <b id="barToday"></b></div>
 </div>
 <nav id="mainNav">
-  <button data-view="dashboard" class="active">Dashboard</button>
-  <button data-view="jobs">Jobs</button>
-  <button data-view="payapps">Pay Apps</button>
-  <button data-view="packet">Waiver Packet</button>
-  <button data-view="chase">Chase Queue</button>
-  <button data-view="received">Received Log</button>
-  <button data-view="closeout">Closeout</button>
-  <button data-view="forms">State Forms</button>
-  <button data-view="pricing">Pricing &amp; Pilot</button>
-  <button data-view="help">Help</button>
+  <button data-view="dashboard" class="active" aria-label="Dashboard"><span class="ic" aria-hidden="true">📊</span><span class="lb">Home</span></button>
+  <button data-view="jobs" aria-label="Jobs"><span class="ic" aria-hidden="true">🏗️</span><span class="lb">Jobs</span></button>
+  <button data-view="payapps" aria-label="Pay Apps"><span class="ic" aria-hidden="true">💵</span><span class="lb">Pay</span></button>
+  <button data-view="packet" aria-label="Waiver Packet"><span class="ic" aria-hidden="true">📑</span><span class="lb">Packet</span></button>
+  <button data-view="chase" aria-label="Chase Queue"><span class="ic" aria-hidden="true">🔔</span><span class="lb">Chase</span></button>
+  <button data-view="received" aria-label="Received Log"><span class="ic" aria-hidden="true">📬</span><span class="lb">Log</span></button>
+  <button data-view="closeout" aria-label="Closeout"><span class="ic" aria-hidden="true">✅</span><span class="lb">Close</span></button>
+  <button data-view="forms" aria-label="State Forms"><span class="ic" aria-hidden="true">📜</span><span class="lb">Forms</span></button>
+  <button data-view="pricing" aria-label="Pricing &amp; Pilot"><span class="ic" aria-hidden="true">💲</span><span class="lb">Pricing</span></button>
+  <button data-view="help" aria-label="Help"><span class="ic" aria-hidden="true">❓</span><span class="lb">Help</span></button>
 </nav>
 <main>
 <!-- ============ DASHBOARD ============ -->
@@ -399,7 +432,7 @@
   <details><summary>What does "matched" mean in the Received Log?</summary><p>When a signed waiver is logged, WaiverChase checks it against its pay app: same sub, same form type, <b>same amount</b>, same through-date. A waiver for the wrong amount is flagged as a mismatch and does <b>not</b> cover the payment — the original waiver stays in the chase queue until the right one arrives.</p></details>
   <details><summary>Where does my data live? How do I back it up?</summary><p>In this demo edition, everything lives <b>on this device, in this browser</b> — no account, nothing uploaded. Export the waiver log CSV from the Dashboard to keep a dated copy, and use Reset below to restore the fictional sample data or Clear to empty the app. Clearing your browser's site data erases your records, so export before you do.</p></details>
   <div class="toolbar" style="margin-top:16px;">
-    <a class="btn" id="emailUsBtn" href="mailto:whitewolfbackoffice@gmail.com?subject=WaiverChase%20help%20%E2%80%94%20v0.1.0-demo&amp;body=Tell%20us%20what%20you%20were%20trying%20to%20do%20and%20what%20happened%3A%0A%0A">Email us</a>
+    <a class="btn" id="emailUsBtn" href="mailto:whitewolfbackoffice@gmail.com?subject=WaiverChase%20help%20%E2%80%94%20v0.1.1-demo&amp;body=Tell%20us%20what%20you%20were%20trying%20to%20do%20and%20what%20happened%3A%0A%0A">Email us</a>
     <button class="btn secondary" id="resetDataBtn">Reset demo data</button>
     <button class="btn danger" id="clearDataBtn">Clear demo data</button>
   </div>
@@ -408,13 +441,13 @@
 </main>
 <footer>
   <div><b>WaiverChase</b> — a White Wolf Tree Service LLC · Back-Office Services product. Questions or the pilot: whitewolfbackoffice@gmail.com</div>
-  <div style="margin-top:6px;">Demo build v0.1.0-demo · All companies, people, jobs, and waivers shown are fictional sample data. Works offline; no account; your data stays on this device.</div>
+  <div style="margin-top:6px;">Demo build v0.1.1-demo · All companies, people, jobs, and waivers shown are fictional sample data. Works offline; no account; your data stays on this device.</div>
 </footer>
 <div id="toast"></div>
 <div id="printArea"></div>
 
 <script>
-var VERSION = "v0.1.0-demo";
+var VERSION = "v0.1.1-demo";
 var LS_KEY = "waiverchase_demo_v1";
 var state = null;
 
